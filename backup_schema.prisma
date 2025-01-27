@@ -1,0 +1,98 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id           Int        @id @default(autoincrement())
+  email        String
+  title_th     String
+  firstname_th String
+  lastname_th  String
+  hcode        String
+  hname_th     String
+  position_id  String
+  position     String
+  sub_district String
+  district     String
+  province     String
+  zone         Int
+  role         String     @default("hospital")
+  enabled      Boolean    @default(false)
+  evaluates    Evaluate[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt()
+}
+
+model Category_quest {
+  id            Int        @id @default(autoincrement())
+  category_name String
+  fiscal_year   String
+  quests        Quest[]
+  evaluates     Evaluate[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt()
+}
+
+model Quest {
+  id                  Int            @id @default(autoincrement())
+  quest_name          String
+  quest_total_point   Int
+  quest_require_point Int
+  category_quests     Category_quest @relation(fields: [category_questId], references: [id])
+  category_questId    Int
+  sub_quest           Sub_quest[]
+  evaluates           Evaluate[]
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt()
+}
+
+model Sub_quest {
+  id                      Int        @id @default(autoincrement())
+  sub_quest_name          String
+  sub_quest_total_point   Int
+  sub_quest_require_point Int
+  description             String?
+  necessary               Boolean    @default(false)
+  evaluates               Evaluate[]
+  quests                  Quest      @relation(fields: [questId], references: [id])
+  questId                 Int
+  createdAt               DateTime   @default(now())
+  updatedAt               DateTime   @updatedAt()
+}
+
+model Evaluate {
+  id               Int                 @id @default(autoincrement())
+  category_quests  Category_quest      @relation(fields: [category_questId], references: [id])
+  category_questId Int
+  piont            Int
+  hcode            String
+  users            Users               @relation(fields: [userId], references: [id])
+  userId           Int
+  quests           Quest               @relation(fields: [questId], references: [id])
+  questId          Int
+  sub_quests       Sub_quest           @relation(fields: [sub_questId], references: [id])
+  sub_questId      Int
+  documents        Evidence_document[]
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt()
+}
+
+model Evidence_document {
+  id         Int      @id @default(autoincrement())
+  documents  String
+  evaluates  Evaluate @relation(fields: [evaluateId], references: [id])
+  evaluateId Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt()
+}

@@ -1,0 +1,247 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id               Int                @id @default(autoincrement())
+  email            String
+  firstname_th     String
+  lastname_th      String
+  hcode            String
+  hname_th         String
+  position_id      String
+  position         String
+  district         String
+  province         String
+  zone             String
+  role             String             @default("user")
+  level            Int
+  objective        String
+  enabled          Boolean            @default(false)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  documents        Documents[]
+  evaluates        Evaluate[]
+  log_evaluate     Log_evaluate[]
+  log_ssj_approve  Log_ssj_approve[]
+  log_zone_approve Log_zone_approve[]
+}
+
+model Category_quest {
+  id                Int         @id @default(autoincrement())
+  category_name_th  String
+  category_name_eng String
+  fiscal_year       String
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  documents         Documents[]
+  evaluates         Evaluate[]
+  quests            Quest[]
+  sub_quests        Sub_quest[]
+}
+
+model Quest {
+  id               Int            @id @default(autoincrement())
+  quest_name       String         @db.Text
+  category_questId Int
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  evaluates        Evaluate[]
+  category_quests  Category_quest @relation(fields: [category_questId], references: [id])
+  sub_quest        Sub_quest[]
+
+  @@index([category_questId], map: "Quest_category_questId_fkey")
+}
+
+model Sub_quest {
+  id                      Int              @id @default(autoincrement())
+  category_questId        Int
+  questId                 Int
+  sub_quest_name          String           @db.Text
+  sub_quest_total_point   Int
+  sub_quest_require_point Int
+  description             String?          @db.Text
+  necessary               Boolean          @default(false)
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @updatedAt
+  evaluates               Evaluate[]
+  category_quests         Category_quest   @relation(fields: [category_questId], references: [id])
+  quests                  Quest            @relation(fields: [questId], references: [id])
+  sub_quest_lists         Sub_quest_list[]
+
+  @@index([category_questId], map: "Sub_quest_category_questId_fkey")
+  @@index([questId], map: "Sub_quest_questId_fkey")
+}
+
+model Sub_quest_list {
+  id                      Int        @id @default(autoincrement())
+  sub_questId             Int
+  choice                  String?
+  sub_quest_listname      String     @db.Text
+  sub_quest_total_point   Int
+  sub_quest_require_point Int
+  description             String?    @db.Text
+  necessary               Boolean    @default(false)
+  createdAt               DateTime   @default(now())
+  updatedAt               DateTime   @updatedAt
+  evaluates               Evaluate[]
+  Sub_quest               Sub_quest  @relation(fields: [sub_questId], references: [id])
+
+  @@index([sub_questId], map: "Sub_quest_list_sub_questId_fkey")
+}
+
+model Evaluate {
+  id               Int             @id @default(autoincrement())
+  category_questId Int
+  questId          Int
+  sub_questId      Int
+  sub_quest_listId Int?
+  check            String
+  hcode            String
+  userId           Int
+  file_name        String?
+  ssj_approve      Boolean         @default(false)
+  zone_approve     Boolean         @default(false)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  category_quests  Category_quest  @relation(fields: [category_questId], references: [id])
+  hospitals        Hospitals       @relation(fields: [hcode], references: [hcode])
+  quests           Quest           @relation(fields: [questId], references: [id])
+  sub_quests       Sub_quest       @relation(fields: [sub_questId], references: [id])
+  Sub_quest_list   Sub_quest_list? @relation(fields: [sub_quest_listId], references: [id])
+  users            Users           @relation(fields: [userId], references: [id])
+
+  @@index([category_questId], map: "Evaluate_category_questId_fkey")
+  @@index([hcode], map: "Evaluate_hcode_fkey")
+  @@index([questId], map: "Evaluate_questId_fkey")
+  @@index([sub_questId], map: "Evaluate_sub_questId_fkey")
+  @@index([sub_quest_listId], map: "Evaluate_sub_quest_listId_fkey")
+  @@index([userId], map: "Evaluate_userId_fkey")
+}
+
+model Documents {
+  id               Int            @id @default(autoincrement())
+  category_questId Int
+  file_name        String
+  hcode            String
+  usersId          Int
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  Category_quest   Category_quest @relation(fields: [category_questId], references: [id])
+  users            Users          @relation(fields: [usersId], references: [id])
+
+  @@index([category_questId], map: "Documents_category_questId_fkey")
+  @@index([usersId], map: "Documents_usersId_fkey")
+}
+
+model Log_ssj_approve {
+  id          Int      @id @default(autoincrement())
+  evaluateId  Int
+  ssj_approve Boolean  @default(false)
+  usersId     Int
+  hcode       String
+  province    String?
+  zone        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       Users    @relation(fields: [usersId], references: [id])
+
+  @@index([evaluateId], map: "Approve_ssj_evaluateId_fkey")
+  @@index([usersId], map: "Approve_ssj_usersId_fkey")
+}
+
+model Log_zone_approve {
+  id           Int      @id @default(autoincrement())
+  evaluateId   Int
+  zone_approve Boolean  @default(false)
+  usersId      Int
+  hcode        String
+  province     String?
+  zone         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  users        Users    @relation(fields: [usersId], references: [id])
+
+  @@index([evaluateId], map: "Approve_zone_evaluateId_fkey")
+  @@index([usersId], map: "Approve_zone_usersId_fkey")
+}
+
+model Log_evaluate {
+  id         Int      @id @default(autoincrement())
+  evaluateId Int
+  usersId    Int
+  hcode      String
+  province   String?
+  zone       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  users      Users    @relation(fields: [usersId], references: [id])
+
+  @@index([evaluateId], map: "Approve_zone_evaluateId_fkey")
+  @@index([usersId], map: "Approve_zone_usersId_fkey")
+}
+
+model Log_update_evaluate {
+  id               Int       @id @default(autoincrement())
+  evaluateId       Int
+  category_questId Int
+  questId          Int
+  sub_questId      Int
+  check            String
+  hcode            String
+  hname_th         String
+  province         String?
+  zone             String?
+  userId           Int
+  createdAt        DateTime  @default(now())
+  hospitals        Hospitals @relation(fields: [hcode], references: [hcode])
+}
+
+model Hospitals {
+  id                  Int                   @id @default(autoincrement())
+  hcode               String                @unique
+  hname_th            String
+  tmbcode             String
+  tmbname             String
+  ampcode             String
+  ampname             String
+  provcode            String
+  provname            String
+  zone                String
+  typename            String
+  evaluates           Evaluate[]
+  Log_update_evaluate Log_update_evaluate[]
+}
+
+model Cyber_risk_level {
+  id              Int      @id @default(autoincrement())
+  hcode           String
+  province        String
+  hname_th        String
+  hosp_level      String
+  cyber_level     String
+  cyber_levelname String
+  zone_name       String
+  supplier        String
+  usersId         Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model Sum_approve_evaluate {
+  category_questId        BigInt?
+  hcode                   String? @db.Text
+  sub_quest_total_point   Float?
+  sub_quest_require_point Float?
+  cyber_level             String? @db.Text
+  cyber_levelname         String? @db.Text
+  updatedAt               String? @db.Text
+
+  @@ignore
+}
