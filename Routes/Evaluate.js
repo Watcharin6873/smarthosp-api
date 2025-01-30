@@ -26,7 +26,11 @@ const {
     getCyberSecurityLevelData,
     removeFileById,
     splitComma,
-    getSumEvaluateByZone
+    getSumEvaluateByZone,
+    checkSsjNotApprove,
+    checkZoneNotApprove,
+    ssjUnApprove,
+    zoneUnApprove
 } = require('../Controllers/Evaluate')
 const { authCheck } = require('../Middleware/Auth')
 const { uploadFile } = require('../Middleware/UploadFile')
@@ -76,6 +80,10 @@ router.put('/ssjChangeStatusApprove', authCheck, ssjChangeStatusApprove)
 
 router.put('/zoneChangeStatusApprove', authCheck, zoneChangeStatusApprove)
 
+router.put('/ssjUnApprove', authCheck, ssjUnApprove)
+
+router.put('/zoneUnApprove', authCheck, zoneUnApprove)
+
 router.get('/getEvidenceFromEvaluate', authCheck, getEvidenceFromEvaluate)
 
 router.get('/getDocumentsByEvaluateByHosp', authCheck, getDocumentsByEvaluateByHosp)
@@ -85,6 +93,10 @@ router.get('/splitComma', authCheck, splitComma)
 router.get('/getSumEvaluateByZone', authCheck, getSumEvaluateByZone)
 
 router.delete('/truncateTable', authCheck, truncateTable)
+
+router.get('/checkSsjNotApprove',authCheck, checkSsjNotApprove)
+
+router.get('/checkZoneNotApprove', authCheck, checkZoneNotApprove)
 
 
 

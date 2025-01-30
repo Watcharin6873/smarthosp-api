@@ -214,16 +214,16 @@ exports.getEvaluateByHosp2 = async (req, res) => {
         const { hcode } = req.query
         console.log(req.query)
         const result = await prisma.evaluate.findMany({
-            where: {hcode: hcode},
-            select:{
+            where: { hcode: hcode },
+            select: {
                 id: true,
                 questId: true,
                 sub_questId: true,
                 check: true,
                 hcode: true,
                 userId: true,
-                hospitals:{
-                    select:{
+                hospitals: {
+                    select: {
                         hcode: true,
                         hname_th: true,
                         provcode: true,
@@ -591,8 +591,8 @@ exports.updateChoiceEvaluate = async (req, res) => {
         })
 
         const evaluate = await prisma.evaluate.findFirst({
-            where:{id: Number(id)},
-            select:{
+            where: { id: Number(id) },
+            select: {
                 id: true,
                 category_questId: true,
                 questId: true,
@@ -600,8 +600,8 @@ exports.updateChoiceEvaluate = async (req, res) => {
                 check: true,
                 hcode: true,
                 userId: true,
-                hospitals:{
-                    select:{
+                hospitals: {
+                    select: {
                         hcode: true,
                         hname_th: true,
                         provcode: true,
@@ -613,7 +613,7 @@ exports.updateChoiceEvaluate = async (req, res) => {
         })
 
         await prisma.log_update_evaluate.create({
-            data:{
+            data: {
                 evaluateId: evaluate.id,
                 category_questId: evaluate.category_questId,
                 questId: evaluate.questId,
@@ -1003,6 +1003,124 @@ exports.getSumEvaluateByZone = async (req, res) => {
 
         res.json(result)
 
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Sever error!"
+        })
+    }
+}
+
+exports.checkSsjNotApprove = async (req, res) => {
+    try {
+        const { hospcode, category_questId } = req.query
+
+        const result = await prisma.evaluate.findMany({
+            where: {
+                AND: [
+                    { hcode: hospcode },
+                    { category_questId: Number(category_questId) },
+                    { ssj_approve: false }
+                ]
+            }
+        })
+
+        res.json(result)
+
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Sever error!"
+        })
+    }
+}
+
+exports.checkZoneNotApprove = async (req, res) => {
+    try {
+        const { province, hospcode, category_questId } = req.query
+
+        const result = await prisma.evaluate.findMany({
+            where: {
+                AND: [
+                    { hcode: hospcode },
+                    { category_questId: Number(category_questId) },
+                    { zone_approve: false },
+                    {
+                        hospitals: {
+                            is: {
+                                provname: province
+                            }
+                        }
+                    }
+                ]
+            }
+        })
+
+        res.json(result)
+
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Sever error!"
+        })
+    }
+}
+
+//SSJ UNAPPROVE
+exports.ssjUnApprove = async (req, res) =>{
+    try {
+        //Code
+        const ssj_approve = req.body.map((item)=>({
+            ssj_approve: item.ssj_approve
+        }))
+
+        console.log('Bol: ', ssj_approve)
+
+        console
+
+        await prisma.evaluate.updateMany({
+            where: {
+                id: {
+                    in: req.body.map((item => item.evaluateId))
+                }
+            },
+            data: {
+                    ssj_approve: false
+            }
+            
+            
+           
+        })
+
+        res.json({
+            message: `ยกเลิกการอนุมัติเรียบร้อยแล้ว!`
+        })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Sever error!"
+        })
+    }
+}
+
+//ZONE UNAPPROVE
+exports.zoneUnApprove = async (req, res) =>{
+    try {
+        //Code
+        await prisma.evaluate.updateMany({
+            where: {
+                id: {
+                    in: req.body.map((item => item.evaluateId))
+                }
+            },
+            data: {
+                zone_approve: Boolean(req.body.map((item => item.zone_approve)))
+            }
+        })
+
+        res.json({
+            message: `ยกเลิกการอนุมัติเรียบร้อยแล้ว!`
+        })
     } catch (err) {
         console.log(err)
         res.status(500).json({
