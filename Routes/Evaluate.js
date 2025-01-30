@@ -30,7 +30,9 @@ const {
     checkSsjNotApprove,
     checkZoneNotApprove,
     ssjUnApprove,
-    zoneUnApprove
+    zoneUnApprove,
+    getHospitalInListEvaluate, 
+    sumEvaluateAll
 } = require('../Controllers/Evaluate')
 const { authCheck } = require('../Middleware/Auth')
 const { uploadFile } = require('../Middleware/UploadFile')
@@ -41,6 +43,10 @@ const { uploadCyberImage } = require('../Middleware/UploadCyberImage')
 router.post('/saveEvaluates', authCheck, saveEvaluates)
 
 router.get('/getListEvaluateAll', getListEvaluateAll)
+
+router.get('/getHospitalInListEvaluate', getHospitalInListEvaluate)
+
+router.get('/sumEvaluateAll', sumEvaluateAll)
 
 router.post('/saveEvaluates2', authCheck, uploadAllTypeFile, saveEvaluates2)
 

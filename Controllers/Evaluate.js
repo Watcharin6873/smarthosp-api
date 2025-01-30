@@ -95,44 +95,24 @@ exports.saveEvaluates2 = async (req, res) => {
     }
 }
 
+exports.getHospitalInListEvaluate = async (req, res) =>{
+    try {
+        //Code
+        const result = await prisma.$queryRaw`SELECT DISTINCT t2.zone,t2.provcode,t2.provname,t1.hcode,t2.hname_th
+                        FROM Evaluate AS t1 INNER JOIN Hospitals AS t2 ON t1.hcode = t2.hcode WHERE t2.typename IN ('โรงพยาบาลศูนย์','โรงพยาบาลทั่วไป','โรงพยาบาลชุมชน')`
+
+        res.json(result)
+
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ message: 'Server Error!' })
+    }
+}
 
 exports.getListEvaluateByHosp = async (req, res) => {
     try {
         //Code
         const { hcode } = req.params
-        // const result = await prisma.evaluate.findMany({
-        //     where: { hcode: hcode },
-        //     include: {
-        //         category_quests: {
-        //             select: {
-        //                 id: true,
-        //                 category_name_th: true,
-        //                 category_name_eng: true,
-        //                 fiscal_year: true
-        //             }
-        //         },
-        //         quests: {
-        //             select: {
-        //                 id: true,
-        //                 quest_name: true
-        //             }
-        //         },
-        //         sub_quests: {
-        //             select: {
-        //                 id: true,
-        //                 sub_quest_name: true
-        //             }
-        //         },
-        //         approve_ssjs: {
-        //             select: {
-        //                 id: true,
-        //                 ssj_approved: true,
-        //                 usersId: true
-        //             }
-        //         },
-        //     }
-        // })
-
         const result = await prisma.$queryRaw`SELECT t1.id,t1.category_questId,t1.questId,t1.sub_questId,t3.sub_quest_name,
                 t1.check,t1.hcode,t1.file_name,t2.id AS sub_quest_listId,t2.sub_quest_listname,t2.sub_quest_total_point,	
                 t2.sub_quest_require_point,t2.description,t2.necessary,t1.createdAt,t1.updatedAt
@@ -241,6 +221,23 @@ exports.getEvaluateByHosp2 = async (req, res) => {
     }
 }
 
+exports.sumEvaluateAll = async(req, res) =>{
+    try {
+        //Code
+        const result = await prisma.$queryRaw`SELECT t2.zone,t2.provcode,t2.provname,t1.hcode,t2.hname_th,SUM(sub_quest_total_point) AS sub_quest_total_point,
+                            SUM(sub_quest_require_point) AS sub_quest_require_point,t1.cyber_level, t1.cyber_levelname
+                        FROM Sum_approve_evaluate AS t1 INNER JOIN Hospitals AS t2 ON t1.hcode = t2.hcode COLLATE utf8mb4_unicode_ci
+                        WHERE t2.typename IN ('โรงพยาบาลศูนย์','โรงพยาบาลทั่วไป','โรงพยาบาลชุมชน')
+                        GROUP BY t2.zone,t2.provcode,t2.provname,t1.hcode,t2.hname_th,t1.cyber_level, t1.cyber_levelname
+                        ORDER BY CAST(t2.zone AS UNSIGNED), t2.provcode ASC`
+
+        res.json(result)
+        
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ message: 'Server Error!' })
+    }
+}
 
 exports.sumEvaluateByHosp = async (req, res) => {
     try {
