@@ -27,6 +27,7 @@ const {
     removeFileById,
     splitComma,
     getSumEvaluateByZone,
+    getSumEvaluateForAll,
     checkSsjNotApprove,
     checkZoneNotApprove,
     ssjUnApprove,
@@ -45,6 +46,8 @@ router.post('/saveEvaluates', authCheck, saveEvaluates)
 router.get('/getListEvaluateAll', getListEvaluateAll)
 
 router.get('/getHospitalInListEvaluate', getHospitalInListEvaluate)
+
+router.get('/getSumEvaluateForAll', getSumEvaluateForAll)
 
 router.get('/sumEvaluateAll', sumEvaluateAll)
 
