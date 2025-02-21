@@ -335,6 +335,7 @@ exports.getListEvaluateByProv = async (req, res) => {
                 file_name: true,
                 ssj_approve: true,
                 zone_approve: true,
+                category_questId: true,
                 category_quests: {
                     select: {
                         id: true,
@@ -342,12 +343,14 @@ exports.getListEvaluateByProv = async (req, res) => {
                         fiscal_year: true
                     }
                 },
+                questId: true,
                 quests: {
                     select: {
                         id: true,
                         quest_name: true
                     }
                 },
+                sub_questId: true,
                 sub_quests: {
                     select: {
                         id: true,
@@ -356,6 +359,7 @@ exports.getListEvaluateByProv = async (req, res) => {
                     }
                 },
                 check: true,
+                userId: true,
                 users: {
                     select: {
                         id: true,
@@ -371,6 +375,7 @@ exports.getListEvaluateByProv = async (req, res) => {
                         hname_th: true,
                         tmbname: true,
                         ampname: true,
+                        provcode: true,
                         provname: true,
                         zone: true
                     }
@@ -380,9 +385,9 @@ exports.getListEvaluateByProv = async (req, res) => {
                 hospitals: {
                     is: {
                         provname: province,
-                        // typename:{
-                        //     in: listType
-                        // }
+                        typename:{
+                            in: listType
+                        }
                     }
                 }
             }
@@ -458,9 +463,9 @@ exports.getListEvaluateByZone = async (req, res) => {
                 hospitals: {
                     is: {
                         zone: zone,
-                        // typename:{
-                        //     in: listType
-                        // }
+                        typename:{
+                            in: listType
+                        }
                     }
                 }
             }
