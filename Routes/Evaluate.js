@@ -33,7 +33,8 @@ const {
     ssjUnApprove,
     zoneUnApprove,
     getHospitalInListEvaluate, 
-    sumEvaluateAll
+    sumEvaluateAll,
+    getSumEvaluateByProv
 } = require('../Controllers/Evaluate')
 const { authCheck } = require('../Middleware/Auth')
 const { uploadFile } = require('../Middleware/UploadFile')
@@ -98,6 +99,8 @@ router.get('/getEvidenceFromEvaluate', authCheck, getEvidenceFromEvaluate)
 router.get('/getDocumentsByEvaluateByHosp', authCheck, getDocumentsByEvaluateByHosp)
 
 router.get('/splitComma', authCheck, splitComma)
+
+router.get('/getSumEvaluateByProv', authCheck, getSumEvaluateByProv)
 
 router.get('/getSumEvaluateByZone', authCheck, getSumEvaluateByZone)
 

@@ -986,13 +986,12 @@ exports.splitComma = async (req, res) => {
     }
 }
 
-
-exports.getSumEvaluateByZone = async (req, res) => {
+exports.getSumEvaluateByProv = async (req, res) => {
     try {
         //Code
-        const { zone } = req.query
+        const { province } = req.query
 
-        const result = await prisma.$queryRaw`SELECT tb1.hcode,tb1.hname_th,
+        const result = await prisma.$queryRaw`SELECT tb1.zone,tb1.provcode,tb1.provname,tb1.hcode,tb1.hname_th,
                             SUM(CASE WHEN tb1.id = 1 THEN tb1.sub_quest_total_point END) AS point_total_cat1,
                             SUM(CASE WHEN tb1.id = 1 THEN tb1.sub_quest_require_point END) AS point_require_cat1,	
                             SUM(CASE WHEN tb1.id = 2 THEN tb1.sub_quest_total_point END) AS point_total_cat2,
@@ -1004,13 +1003,51 @@ exports.getSumEvaluateByZone = async (req, res) => {
                             tb1.cyber_level,tb1.cyber_levelname
                         FROM (SELECT t1.id,t2.hcode,t2.hname_th,t2.provcode,t2.provname,t2.zone,t2.sub_quest_total_point,
                         t2.sub_quest_require_point,t2.cyber_level,t2.cyber_levelname FROM Category_quest AS t1 
-                        LEFT JOIN (SELECT a.category_questId,a.hcode,b.hname_th,b.provcode,	b.provname,b.zone,
+                        LEFT JOIN (SELECT a.category_questId,a.hcode,b.hname_th,b.provcode,	b.provname,b.zone,b.typename,
                         a.sub_quest_total_point,a.sub_quest_require_point,a.cyber_level,a.cyber_levelname
                         FROM Sum_approve_evaluate AS a
                         LEFT JOIN Hospitals AS b
                         ON a.hcode = b.hcode COLLATE utf8mb4_unicode_ci) AS t2
-                        ON t1.id = t2.category_questId WHERE t2.zone = ${zone}) AS tb1
-                        GROUP BY tb1.hcode,tb1.hname_th,tb1.cyber_level,tb1.cyber_levelname`
+                        ON t1.id = t2.category_questId WHERE t2.provname = ${province} 
+                        AND t2.typename IN ('โรงพยาบาลศูนย์', 'โรงพยาบาลทั่วไป', 'โรงพยาบาลชุมชน')) AS tb1
+                        GROUP BY tb1.zone,tb1.provcode,tb1.provname,tb1.hcode,tb1.hname_th,tb1.cyber_level,tb1.cyber_levelname`
+
+        res.json(result)
+
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Sever error!"
+        })
+    }
+}
+
+
+exports.getSumEvaluateByZone = async (req, res) => {
+    try {
+        //Code
+        const { zone } = req.query
+
+        const result = await prisma.$queryRaw`SELECT tb1.zone,tb1.provcode,tb1.provname,tb1.hcode,tb1.hname_th,
+                            SUM(CASE WHEN tb1.id = 1 THEN tb1.sub_quest_total_point END) AS point_total_cat1,
+                            SUM(CASE WHEN tb1.id = 1 THEN tb1.sub_quest_require_point END) AS point_require_cat1,	
+                            SUM(CASE WHEN tb1.id = 2 THEN tb1.sub_quest_total_point END) AS point_total_cat2,
+                            SUM(CASE WHEN tb1.id = 2 THEN tb1.sub_quest_require_point END) AS point_require_cat2,	
+                            SUM(CASE WHEN tb1.id = 3 THEN tb1.sub_quest_total_point END) AS point_total_cat3,
+                            SUM(CASE WHEN tb1.id = 3 THEN tb1.sub_quest_require_point END) AS point_require_cat3,	
+                            SUM(CASE WHEN tb1.id = 4 THEN tb1.sub_quest_total_point END) AS point_total_cat4,
+                            SUM(CASE WHEN tb1.id = 4 THEN tb1.sub_quest_require_point END) AS point_require_cat4,
+                            tb1.cyber_level,tb1.cyber_levelname
+                        FROM (SELECT t1.id,t2.hcode,t2.hname_th,t2.provcode,t2.provname,t2.zone,t2.sub_quest_total_point,
+                        t2.sub_quest_require_point,t2.cyber_level,t2.cyber_levelname FROM Category_quest AS t1 
+                        LEFT JOIN (SELECT a.category_questId,a.hcode,b.hname_th,b.provcode,	b.provname,b.zone,b.typename,
+                        a.sub_quest_total_point,a.sub_quest_require_point,a.cyber_level,a.cyber_levelname
+                        FROM Sum_approve_evaluate AS a
+                        LEFT JOIN Hospitals AS b
+                        ON a.hcode = b.hcode COLLATE utf8mb4_unicode_ci) AS t2
+                        ON t1.id = t2.category_questId WHERE t2.zone = ${zone} 
+                        AND t2.typename IN ('โรงพยาบาลศูนย์', 'โรงพยาบาลทั่วไป', 'โรงพยาบาลชุมชน')) AS tb1
+                        GROUP BY tb1.zone,tb1.provcode,tb1.provname,tb1.hcode,tb1.hname_th,tb1.cyber_level,tb1.cyber_levelname`
 
         res.json(result)
 
