@@ -200,6 +200,8 @@ model Log_update_evaluate {
   userId           Int
   createdAt        DateTime  @default(now())
   hospitals        Hospitals @relation(fields: [hcode], references: [hcode])
+
+  @@index([hcode], map: "Log_update_evaluate_hcode_fkey")
 }
 
 model Hospitals {
@@ -242,6 +244,45 @@ model Sum_approve_evaluate {
   cyber_level             String? @db.Text
   cyber_levelname         String? @db.Text
   updatedAt               String? @db.Text
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model For_report_all {
+  zone             String? @db.Text
+  provcode         String? @db.Text
+  provname         String? @db.Text
+  hcode            String? @db.Text
+  hname_th         String? @db.Text
+  category_questId BigInt?
+  questId          BigInt?
+  sub_questId      BigInt?
+  sub_quest_name   String? @db.Text
+  c_check          String? @db.Text
+  updatedAt        String? @db.Text
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model Report_evaluate_all {
+  zone               String? @db.Text
+  provcode           String? @db.Text
+  provname           String? @db.Text
+  hcode              String? @db.Text
+  hname_th           String? @db.Text
+  typename           String? @db.Text
+  point_total_cat1   Float?
+  point_require_cat1 Float?
+  point_total_cat2   Float?
+  point_require_cat2 Float?
+  point_total_cat3   Float?
+  point_require_cat3 Float?
+  point_total_cat4   Float?
+  cyber_level        String? @db.Text
+  cyber_levelname    String? @db.Text
+  updatedAt          String? @db.Text
 
   @@ignore
 }
