@@ -1196,7 +1196,7 @@ exports.zoneUnApprove = async (req, res) =>{
                 }
             },
             data: {
-                zone_approve: Boolean(req.body.map((item => item.zone_approve)))
+                zone_approve: false
             }
         })
 
