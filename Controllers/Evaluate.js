@@ -227,6 +227,22 @@ exports.getEvaluateByHosp2 = async (req, res) => {
     }
 }
 
+exports.getEvaluateForBarChartStackZone = async (req, res) =>{
+    try {
+        const {zone} = req.query
+
+        const result = await prisma.$queryRaw`SELECT provcode,provname,gemlevel,
+                                goldlevel, silverlevel, notpasslevel,
+                                total_hosp FROM Result_evaluate_forchart
+                                WHERE zone = ${zone} ORDER BY CAST(provcode AS UNSIGNED) ASC`
+
+        res.json(result)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ message: 'Server Error!' })
+    }
+}
+
 exports.sumEvaluateAll = async(req, res) =>{
     try {
         //Code

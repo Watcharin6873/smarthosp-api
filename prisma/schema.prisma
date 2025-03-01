@@ -286,3 +286,18 @@ model Report_evaluate_all {
 
   @@ignore
 }
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model Result_evaluate_forchart {
+  zone         String? @db.Text
+  provcode     String? @db.Text
+  provname     String? @db.Text
+  gemlevel     Int?
+  goldlevel    Int?
+  silverlevel  Int?
+  notpasslevel Int?
+  total_hosp   Int?
+  updatedAt    String? @db.Text
+
+  @@ignore
+}
