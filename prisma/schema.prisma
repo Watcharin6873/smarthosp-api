@@ -238,12 +238,14 @@ model Cyber_risk_level {
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model Sum_approve_evaluate {
   category_questId        BigInt?
-  hcode                   String? @db.Text
+  hcode                   String?  @db.Text
   sub_quest_total_point   Float?
   sub_quest_require_point Float?
-  cyber_level             String? @db.Text
-  cyber_levelname         String? @db.Text
-  updatedAt               String? @db.Text
+  ssj_approve             Boolean?
+  zone_approve            Boolean?
+  cyber_level             String?  @db.Text
+  cyber_levelname         String?  @db.Text
+  updatedAt               String?  @db.Text
 
   @@ignore
 }
