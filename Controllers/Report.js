@@ -13,3 +13,16 @@ exports.report_evaluate_all = async (req, res) => {
         res.status(500).json({ message: 'Server Error!' })
     }
 }
+
+
+exports.reportForPivot = async (req, res) =>{
+    try {
+        //Code
+        const result = await prisma.$queryRaw`SELECT zone,provcode,provname,hcode,hname_th,sub_quest_name,c_check FROM For_report_all`
+
+        res.json(result)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ message: 'Server Error!' })
+    }
+}
