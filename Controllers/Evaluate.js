@@ -227,6 +227,20 @@ exports.getEvaluateByHosp2 = async (req, res) => {
     }
 }
 
+exports.getEvaluateForChart = async (req, res) =>{
+    try {
+        const result = await prisma.$queryRaw`SELECT provcode,provname,gemlevel,
+                                goldlevel, silverlevel, notpasslevel,
+                                total_hosp FROM Result_evaluate_forchart
+                                ORDER BY CAST(provcode AS UNSIGNED) ASC`
+
+        res.json(result)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ message: 'Server Error!' })
+    }
+}
+
 exports.getEvaluateForBarChartStackZone = async (req, res) =>{
     try {
         const {zone} = req.query
@@ -1090,13 +1104,21 @@ exports.getSumEvaluateForAll = async (req, res) => {
     try {
         //Code
         const result = await prisma.$queryRaw`SELECT tb1.zone,tb1.provcode,tb1.provname,tb1.hcode,tb1.hname_th,
-                            SUM(CASE WHEN tb1.id = 1 THEN tb1.sub_quest_total_point END) AS point_total_cat1,
-                            SUM(CASE WHEN tb1.id = 1 THEN tb1.sub_quest_require_point END) AS point_require_cat1,	
-                            SUM(CASE WHEN tb1.id = 2 THEN tb1.sub_quest_total_point END) AS point_total_cat2,
-                            SUM(CASE WHEN tb1.id = 2 THEN tb1.sub_quest_require_point END) AS point_require_cat2,	
-                            SUM(CASE WHEN tb1.id = 3 THEN tb1.sub_quest_total_point END) AS point_total_cat3,
-                            SUM(CASE WHEN tb1.id = 3 THEN tb1.sub_quest_require_point END) AS point_require_cat3,	
-                            SUM(CASE WHEN tb1.id = 4 THEN tb1.sub_quest_total_point END) AS point_total_cat4,
+                            SUM(CASE WHEN tb1.id = 1 THEN tb1.sub_quest_total_point ELSE 0 END) AS point_total_cat1,
+                            SUM(CASE WHEN tb1.id = 1 THEN tb1.sub_quest_require_point ELSE 0 END) AS point_require_cat1,
+			                SUM(CASE WHEN tb1.id = 1 && tb1.ssj_approve = 1 THEN tb1.ssj_approve ELSE 0 END) AS ssjapp_cat1,
+                            SUM(CASE WHEN tb1.id = 1 && tb1.zone_approve = 1 THEN tb1.zone_approve ELSE 0 END) AS zoneapp_cat1,			 
+                            SUM(CASE WHEN tb1.id = 2 THEN tb1.sub_quest_total_point ELSE 0 END) AS point_total_cat2,
+                            SUM(CASE WHEN tb1.id = 2 THEN tb1.sub_quest_require_point ELSE 0 END) AS point_require_cat2,
+			                SUM(CASE WHEN tb1.id = 2 && tb1.ssj_approve = 1 THEN tb1.ssj_approve ELSE 0 END) AS ssjapp_cat2,
+                            SUM(CASE WHEN tb1.id = 2 && tb1.zone_approve = 1 THEN tb1.zone_approve ELSE 0 END) AS zoneapp_cat2,				 
+                            SUM(CASE WHEN tb1.id = 3 THEN tb1.sub_quest_total_point ELSE 0 END) AS point_total_cat3,
+                            SUM(CASE WHEN tb1.id = 3 THEN tb1.sub_quest_require_point ELSE 0 END) AS point_require_cat3,
+			                SUM(CASE WHEN tb1.id = 3 && tb1.ssj_approve = 1 THEN tb1.ssj_approve ELSE 0 END) AS ssjapp_cat3,
+                            SUM(CASE WHEN tb1.id = 3 && tb1.zone_approve = 1 THEN tb1.zone_approve ELSE 0 END) AS zoneapp_cat3,				
+                            SUM(CASE WHEN tb1.id = 4 THEN tb1.sub_quest_total_point ELSE 0 END) AS point_total_cat4,
+			                SUM(CASE WHEN tb1.id = 4 && tb1.ssj_approve = 1 THEN tb1.ssj_approve ELSE 0 END) AS ssjapp_cat4,
+                            SUM(CASE WHEN tb1.id = 4 && tb1.zone_approve = 1 THEN tb1.zone_approve ELSE 0 END) AS zoneapp_cat4,
                             tb1.cyber_level,tb1.cyber_levelname
                         FROM (SELECT t1.id,t2.hcode,t2.hname_th,t2.provcode,t2.provname,t2.zone,t2.sub_quest_total_point,
                         t2.sub_quest_require_point,t2.ssj_approve,t2.zone_approve,t2.cyber_level,t2.cyber_levelname FROM Category_quest AS t1 

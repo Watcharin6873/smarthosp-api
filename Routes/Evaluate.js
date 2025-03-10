@@ -36,7 +36,8 @@ const {
     sumEvaluateAll,
     getSumEvaluateByProv,
     getEvaluateForBarChartStackZone,
-    selectApproveEvaluate
+    selectApproveEvaluate,
+    getEvaluateForChart
 } = require('../Controllers/Evaluate')
 const { authCheck } = require('../Middleware/Auth')
 const { uploadFile } = require('../Middleware/UploadFile')
@@ -55,6 +56,8 @@ router.get('/getSumEvaluateForAll', getSumEvaluateForAll)
 router.get('/sumEvaluateAll', sumEvaluateAll)
 
 router.get('/getEvaluateForBarChartStackZone', getEvaluateForBarChartStackZone)
+
+router.get('/getEvaluateForChart', getEvaluateForChart)
 
 router.post('/saveEvaluates2', authCheck, uploadAllTypeFile, saveEvaluates2)
 
