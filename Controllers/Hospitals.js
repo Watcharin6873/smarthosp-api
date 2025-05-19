@@ -9,7 +9,8 @@ exports.getListHospitalAll = async (req, res) => {
                 OR: [
                     { typename: 'โรงพยาบาลศูนย์' },
                     { typename: 'โรงพยาบาลทั่วไป' },
-                    { typename: 'โรงพยาบาลชุมชน' }
+                    { typename: 'โรงพยาบาลชุมชน' },
+                    { typename: 'หน่วยงานทดสอบระบบ' }
                 ]
             }
 
@@ -34,7 +35,8 @@ exports.getHospitalOnProv = async (req, res) => {
                         OR: [
                             { typename: 'โรงพยาบาลศูนย์' },
                             { typename: 'โรงพยาบาลทั่วไป' },
-                            { typename: 'โรงพยาบาลชุมชน' }
+                            { typename: 'โรงพยาบาลชุมชน' },
+                            { typename: 'หน่วยงานทดสอบระบบ' }
                         ]
                     }
                 ]
@@ -60,7 +62,8 @@ exports.getListHospitalOnZone = async (req, res) => {
                         OR: [
                             { typename: 'โรงพยาบาลศูนย์' },
                             { typename: 'โรงพยาบาลทั่วไป' },
-                            { typename: 'โรงพยาบาลชุมชน' }
+                            { typename: 'โรงพยาบาลชุมชน' },
+                            { typename: 'หน่วยงานทดสอบระบบ' }
                         ]
                     }
                 ]

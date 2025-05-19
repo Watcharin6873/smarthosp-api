@@ -25,6 +25,7 @@ model Users {
   enabled          Boolean            @default(false)
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
+  comments         Comment[]
   documents        Documents[]
   evaluates        Evaluate[]
   log_evaluate     Log_evaluate[]
@@ -109,6 +110,7 @@ model Evaluate {
   zone_approve     Boolean         @default(false)
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
+  comments         Comment[]
   category_quests  Category_quest  @relation(fields: [category_questId], references: [id])
   hospitals        Hospitals       @relation(fields: [hcode], references: [hcode])
   quests           Quest           @relation(fields: [questId], references: [id])
@@ -233,6 +235,20 @@ model Cyber_risk_level {
   usersId         Int
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+model Comment {
+  id           Int      @id @default(autoincrement())
+  evaluateId   Int
+  comment_text String?  @db.VarChar(255)
+  userId       Int
+  createdAt    DateTime @db.DateTime(0)
+  updatedAt    DateTime @updatedAt @db.DateTime(0)
+  evaluate     Evaluate @relation(fields: [evaluateId], references: [id])
+  users        Users    @relation(fields: [userId], references: [id])
+
+  @@index([evaluateId], map: "Comment_evaluateId_fkey")
+  @@index([userId], map: "Comment_userId_fkey")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.

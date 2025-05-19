@@ -95,7 +95,7 @@ exports.saveEvaluates2 = async (req, res) => {
     }
 }
 
-exports.getHospitalInListEvaluate = async (req, res) =>{
+exports.getHospitalInListEvaluate = async (req, res) => {
     try {
         //Code
         const result = await prisma.$queryRaw`SELECT tb1.zone,tb1.provcode,tb1.provname,tb1.hcode,tb1.hname_th,tb1.sub_quest_total_point,
@@ -227,7 +227,85 @@ exports.getEvaluateByHosp2 = async (req, res) => {
     }
 }
 
-exports.getEvaluateForChart = async (req, res) =>{
+exports.getEvaluateByHosp3 = async (req, res) => {
+    try {
+        //Code
+        const { category_questId, hcode } = req.query
+        const listType = ['โรงพยาบาลศูนย์', 'โรงพยาบาลทั่วไป', 'โรงพยาบาลชุมชน', 'หน่วยงานทดสอบระบบ'];
+        const result = await prisma.evaluate.findMany({
+            select: {
+                id: true,
+                file_name: true,
+                ssj_approve: true,
+                zone_approve: true,
+                category_questId: true,
+                category_quests: {
+                    select: {
+                        id: true,
+                        category_name_th: true,
+                        fiscal_year: true
+                    }
+                },
+                questId: true,
+                quests: {
+                    select: {
+                        id: true,
+                        quest_name: true
+                    }
+                },
+                sub_questId: true,
+                sub_quests: {
+                    select: {
+                        id: true,
+                        sub_quest_name: true,
+                        sub_quest_lists: true
+                    }
+                },
+                check: true,
+                userId: true,
+                users: {
+                    select: {
+                        id: true,
+                        firstname_th: true,
+                        lastname_th: true
+                    }
+                },
+                hcode: true,
+                hospitals: {
+                    select: {
+                        id: true,
+                        hcode: true,
+                        hname_th: true,
+                        tmbname: true,
+                        ampname: true,
+                        provcode: true,
+                        provname: true,
+                        zone: true
+                    }
+                }
+            },
+            where: {
+                hospitals: {
+                    is: {
+                        hcode: hcode,
+                        typename: {
+                            in: listType
+                        }
+                    }
+                },
+                category_questId: Number(category_questId)
+            }
+        })
+
+        res.json(result)
+
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ message: 'Server Error!' })
+    }
+}
+
+exports.getEvaluateForChart = async (req, res) => {
     try {
         const result = await prisma.$queryRaw`SELECT provcode,provname,gemlevel,
                                 goldlevel, silverlevel, notpasslevel,
@@ -241,9 +319,9 @@ exports.getEvaluateForChart = async (req, res) =>{
     }
 }
 
-exports.getEvaluateForBarChartStackZone = async (req, res) =>{
+exports.getEvaluateForBarChartStackZone = async (req, res) => {
     try {
-        const {zone} = req.query
+        const { zone } = req.query
 
         const result = await prisma.$queryRaw`SELECT provcode,provname,gemlevel,
                                 goldlevel, silverlevel, notpasslevel,
@@ -257,7 +335,7 @@ exports.getEvaluateForBarChartStackZone = async (req, res) =>{
     }
 }
 
-exports.sumEvaluateAll = async(req, res) =>{
+exports.sumEvaluateAll = async (req, res) => {
     try {
         //Code
         const result = await prisma.$queryRaw`SELECT t2.zone,t2.provcode,t2.provname,t1.hcode,t2.hname_th,SUM(sub_quest_total_point) AS sub_quest_total_point,
@@ -268,7 +346,7 @@ exports.sumEvaluateAll = async(req, res) =>{
                         ORDER BY CAST(t2.zone AS UNSIGNED), t2.provcode ASC`
 
         res.json(result)
-        
+
     } catch (err) {
         console.log(err)
         res.status(500).json({ message: 'Server Error!' })
@@ -358,7 +436,7 @@ exports.getListEvaluateByProv = async (req, res) => {
     try {
         //Code
         const { province } = req.params
-        const listType = ['โรงพยาบาลศูนย์', 'โรงพยาบาลทั่วไป', 'โรงพยาบาลชุมชน'];
+        const listType = ['โรงพยาบาลศูนย์', 'โรงพยาบาลทั่วไป', 'โรงพยาบาลชุมชน', 'หน่วยงานทดสอบระบบ'];
         const result = await prisma.evaluate.findMany({
             select: {
                 id: true,
@@ -415,7 +493,7 @@ exports.getListEvaluateByProv = async (req, res) => {
                 hospitals: {
                     is: {
                         provname: province,
-                        typename:{
+                        typename: {
                             in: listType
                         }
                     }
@@ -436,7 +514,7 @@ exports.getListEvaluateByZone = async (req, res) => {
     try {
         //Code
         const { zone } = req.params
-        const listType = ['โรงพยาบาลศูนย์', 'โรงพยาบาลทั่วไป', 'โรงพยาบาลชุมชน'];
+        const listType = ['โรงพยาบาลศูนย์', 'โรงพยาบาลทั่วไป', 'โรงพยาบาลชุมชน', 'หน่วยงานทดสอบระบบ'];
         const result = await prisma.evaluate.findMany({
             select: {
                 id: true,
@@ -493,7 +571,7 @@ exports.getListEvaluateByZone = async (req, res) => {
                 hospitals: {
                     is: {
                         zone: zone,
-                        typename:{
+                        typename: {
                             in: listType
                         }
                     }
@@ -895,7 +973,7 @@ exports.getDocumentsByEvaluateByHosp = async (req, res) => {
                     { hcode: hcode }
                 ]
             },
-            orderBy:{
+            orderBy: {
                 updatedAt: 'desc'
             }
         })
@@ -947,6 +1025,37 @@ exports.ssjChangeStatusApprove = async (req, res) => {
     }
 }
 
+exports.ssjApproveById = async (req, res) => {
+    try {
+        //Code
+        const { id, ssj_approve } = req.body
+        console.log(req.body)
+        await prisma.evaluate.update({
+            where: { id: Number(id) },
+            data: {
+                ssj_approve: ssj_approve,
+                updatedAt: new Date()
+            }
+        })
+        if (ssj_approve === true) {
+            return res.json({
+                message: `approve`
+            })
+        } else {
+            return res.json({
+                message: `unapprove`
+            })
+        }
+
+
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Sever error!"
+        })
+    }
+}
+
 
 exports.zoneChangeStatusApprove = async (req, res) => {
     try {
@@ -978,6 +1087,48 @@ exports.zoneChangeStatusApprove = async (req, res) => {
         res.json({
             message: `Aprove หัวข้อประเมินนี้เรียบร้อย!`
         })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Sever error!"
+        })
+    }
+}
+
+exports.changeStatusZoneApprove = async (req, res) => {
+    try {
+        //Code
+        const { hcode, zone_approve } = req.body
+
+        console.log(req.body)
+
+        // await prisma.$queryRaw`UPDATE Evaluate SET zone_approve = ${zone_approve} WHERE hcode = ${hcode}`;
+
+        await prisma.evaluate.updateMany({
+            where: {
+                hcode: hcode
+            },
+            data: {
+                zone_approve: zone_approve
+            }
+        })
+
+        // res.status(200).json({
+        //     message: `อนุมัติรายการประเมินแล้ว!`
+        // })
+
+        if (zone_approve === true) {
+            return res.status(200).json({
+                message: `อนุมัติรายการประเมินแล้ว!`
+            })
+        }
+
+        if (zone_approve === false) {
+            return res.status(200).json({
+                message: `ยกเลิกการอนุมัติรายการประเมินแล้ว!`
+            })
+        }
+
     } catch (err) {
         console.log(err)
         res.status(500).json({
@@ -1196,10 +1347,10 @@ exports.checkZoneNotApprove = async (req, res) => {
 }
 
 //SSJ UNAPPROVE
-exports.ssjUnApprove = async (req, res) =>{
+exports.ssjUnApprove = async (req, res) => {
     try {
         //Code
-        const ssj_approve = req.body.map((item)=>({
+        const ssj_approve = req.body.map((item) => ({
             ssj_approve: item.ssj_approve
         }))
 
@@ -1214,11 +1365,11 @@ exports.ssjUnApprove = async (req, res) =>{
                 }
             },
             data: {
-                    ssj_approve: false
+                ssj_approve: false
             }
-            
-            
-           
+
+
+
         })
 
         res.json({
@@ -1233,7 +1384,7 @@ exports.ssjUnApprove = async (req, res) =>{
 }
 
 //ZONE UNAPPROVE
-exports.zoneUnApprove = async (req, res) =>{
+exports.zoneUnApprove = async (req, res) => {
     try {
         //Code
         await prisma.evaluate.updateMany({
@@ -1259,10 +1410,10 @@ exports.zoneUnApprove = async (req, res) =>{
 }
 
 
-exports.selectApproveEvaluate = async(req,res)=>{
+exports.selectApproveEvaluate = async (req, res) => {
     try {
         //Code
-        const {zone} = req.query
+        const { zone } = req.query
 
         const result = await prisma.$queryRaw`SELECT t1.id,t2.hcode,t2.hname_th,t2.provcode,t2.provname,t2.zone,t2.sub_quest_total_point,
                         t2.sub_quest_require_point,t2.ssj_approve,t2.zone_approve,t2.cyber_level,t2.cyber_levelname FROM Category_quest AS t1 
@@ -1274,6 +1425,258 @@ exports.selectApproveEvaluate = async(req,res)=>{
                         ON t1.id = t2.category_questId WHERE t2.typename IN ('โรงพยาบาลศูนย์', 'โรงพยาบาลทั่วไป', 'โรงพยาบาลชุมชน') AND t2.zone = ${zone}`
 
         res.json(result)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Sever error!"
+        })
+    }
+}
+
+
+exports.getCommentEvaluate = async (req, res) => {
+    try {
+        //Code
+        const result = await prisma.comment.findMany()
+
+        res.json(result)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Sever error!"
+        })
+    }
+}
+
+exports.getCommentEvaluateById = async (req, res) => {
+    try {
+        //Code
+        const { id } = req.params;
+        const result = await prisma.comment.findFirst({
+            where: {
+                id: parseInt(id)
+            }
+        });
+
+        res.json(result);
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Sever error!"
+        })
+    }
+}
+
+exports.commentEvaluate = async (req, res) => {
+    try {
+        //Code
+        const { evaluateId, comment_text, userId } = req.body
+        console.log(req.body)
+
+        await prisma.comment.create({
+            data: {
+                evaluateId: Number(evaluateId),
+                comment_text: comment_text,
+                userId: Number(userId),
+                createdAt: new Date()
+            }
+        })
+        res.status(200).json({
+            message: 'บันทึกข้อคิดเห็นเรียบร้อย'
+        })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Sever error!"
+        })
+    }
+}
+
+
+exports.updateCommentEvaluate = async (req, res) => {
+    try {
+        //Code
+        const { id, comment_text, userId } = req.body
+
+        const result = await prisma.comment.update({
+            where: {
+                id: parseInt(id)
+            },
+            data: {
+                comment_text: comment_text,
+                userId: parseInt(userId),
+                updatedAt: new Date()
+            }
+        })
+
+        res.status(200).json({ message: 'แก้ไขความเห็นเรียบร้อย!!' })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Sever error!"
+        })
+    }
+}
+
+exports.checkApproveAll = async (req, res) => {
+    try {
+        //Code
+        const result = await prisma.$queryRaw`SELECT t2.zone,t2.provcode,t2.provname,t1.hcode,t2.hname_th,
+                                    COUNT(CASE WHEN t1.category_questId = 1 THEN 1 END) AS c_cat1,
+                                    COUNT(CASE WHEN (t1.category_questId = 1 && t1.ssj_approve = TRUE) THEN 1 END) AS ssj_approve_cat1,
+                                    COUNT(CASE WHEN (t1.category_questId = 1 && t1.ssj_approve = FALSE) THEN 1 END) AS ssj_unapprove_cat1,
+                                    COUNT(CASE WHEN (t1.category_questId = 1 && t1.zone_approve = TRUE) THEN 1 END) AS zone_approve_cat1,
+                                    COUNT(CASE WHEN (t1.category_questId = 1 && t1.zone_approve = FALSE) THEN 1 END) AS zone_unapprove_cat1,
+                                    COUNT(CASE WHEN t1.category_questId = 2 THEN 1 END) AS c_cat2,
+                                    COUNT(CASE WHEN (t1.category_questId = 2 && t1.ssj_approve = TRUE) THEN 1 END) AS ssj_approve_cat2,
+                                    COUNT(CASE WHEN (t1.category_questId = 2 && t1.ssj_approve = FALSE) THEN 1 END) AS ssj_unapprove_cat2,
+                                    COUNT(CASE WHEN (t1.category_questId = 2 && t1.zone_approve = TRUE) THEN 1 END) AS zone_approve_cat2,
+                                    COUNT(CASE WHEN (t1.category_questId = 2 && t1.zone_approve = FALSE) THEN 1 END) AS zone_unapprove_cat2,
+                                    COUNT(CASE WHEN t1.category_questId = 3 THEN 1 END) AS c_cat3,
+                                    COUNT(CASE WHEN (t1.category_questId = 3 && t1.ssj_approve = TRUE) THEN 1 END) AS ssj_approve_cat3,
+                                    COUNT(CASE WHEN (t1.category_questId = 3 && t1.ssj_approve = FALSE) THEN 1 END) AS ssj_unapprove_cat3,
+                                    COUNT(CASE WHEN (t1.category_questId = 3 && t1.zone_approve = TRUE) THEN 1 END) AS zone_approve_cat3,
+                                    COUNT(CASE WHEN (t1.category_questId = 3 && t1.zone_approve = FALSE) THEN 1 END) AS zone_unapprove_cat3,
+                                    COUNT(CASE WHEN t1.category_questId = 4 THEN 1 END) AS c_cat4,
+                                    COUNT(CASE WHEN (t1.category_questId = 4 && t1.ssj_approve = TRUE) THEN 1 END) AS ssj_approve_cat4,
+                                    COUNT(CASE WHEN (t1.category_questId = 4 && t1.ssj_approve = FALSE) THEN 1 END) AS ssj_unapprove_cat4,
+                                    COUNT(CASE WHEN (t1.category_questId = 4 && t1.zone_approve = TRUE) THEN 1 END) AS zone_approve_cat4,
+                                    COUNT(CASE WHEN (t1.category_questId = 4 && t1.zone_approve = FALSE) THEN 1 END) AS zone_unapprove_cat4
+                                    FROM Evaluate AS t1 
+                                    INNER JOIN Hospitals AS t2
+                                    ON t1.hcode = t2.hcode COLLATE utf8mb4_unicode_ci
+                                    WHERE t2.typename IN ('โรงพยาบาลศูนย์','โรงพยาบาลทั่วไป','โรงพยาบาลชุมชน')
+                                    GROUP BY t2.zone,t2.provcode,t2.provname,t1.hcode,t2.hname_th
+                                    ORDER BY CAST(t2.zone AS UNSIGNED), t2.provcode ASC`
+
+        const total_result = result.map((item) => ({
+            zone: item.zone,
+            provcode: item.provcode,
+            provname: item.provname,
+            hcode: item.hcode,
+            hname_th: item.hname_th,
+            c_cat1: Number(item.c_cat1),
+            ssj_approve_cat1: Number(item.ssj_approve_cat1),
+            ssj_unapprove_cat1: Number(item.ssj_unapprove_cat1),
+            zone_approve_cat1: Number(item.zone_approve_cat1),
+            zone_unapprove_cat1: Number(item.zone_unapprove_cat1),
+            c_cat2: Number(item.c_cat2),
+            ssj_approve_cat2: Number(item.ssj_approve_cat2),
+            ssj_unapprove_cat2: Number(item.ssj_unapprove_cat2),
+            zone_approve_cat2: Number(item.zone_approve_cat2),
+            zone_unapprove_cat2: Number(item.zone_unapprove_cat2),
+            c_cat3: Number(item.c_cat3),
+            ssj_approve_cat3: Number(item.ssj_approve_cat3),
+            ssj_unapprove_cat3: Number(item.ssj_unapprove_cat3),
+            zone_approve_cat3: Number(item.zone_approve_cat3),
+            zone_unapprove_cat3: Number(item.zone_unapprove_cat3),
+            c_cat4: Number(item.c_cat4),
+            ssj_approve_cat4: Number(item.ssj_approve_cat4),
+            ssj_unapprove_cat4: Number(item.ssj_unapprove_cat4),
+            zone_approve_cat4: Number(item.zone_approve_cat4),
+            zone_unapprove_cat4: Number(item.zone_unapprove_cat4)
+        }))
+
+        res.status(200).json(total_result)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Sever error!"
+        })
+    }
+}
+
+exports.checkApproveZone = async (req, res) => {
+    try {
+        //Code
+        const { zone } = req.query
+        const result = await prisma.$queryRaw`SELECT t2.zone,t2.provcode,t2.provname,t1.hcode,t2.hname_th,
+                                    COUNT(CASE WHEN t1.category_questId = 1 THEN 1 END) AS c_cat1,
+                                    COUNT(CASE WHEN (t1.category_questId = 1 && t1.ssj_approve = TRUE) THEN 1 END) AS ssj_approve_cat1,
+                                    COUNT(CASE WHEN (t1.category_questId = 1 && t1.ssj_approve = FALSE) THEN 1 END) AS ssj_unapprove_cat1,
+                                    COUNT(CASE WHEN (t1.category_questId = 1 && t1.zone_approve = TRUE) THEN 1 END) AS zone_approve_cat1,
+                                    COUNT(CASE WHEN (t1.category_questId = 1 && t1.zone_approve = FALSE) THEN 1 END) AS zone_unapprove_cat1,
+                                    COUNT(CASE WHEN t1.category_questId = 2 THEN 1 END) AS c_cat2,
+                                    COUNT(CASE WHEN (t1.category_questId = 2 && t1.ssj_approve = TRUE) THEN 1 END) AS ssj_approve_cat2,
+                                    COUNT(CASE WHEN (t1.category_questId = 2 && t1.ssj_approve = FALSE) THEN 1 END) AS ssj_unapprove_cat2,
+                                    COUNT(CASE WHEN (t1.category_questId = 2 && t1.zone_approve = TRUE) THEN 1 END) AS zone_approve_cat2,
+                                    COUNT(CASE WHEN (t1.category_questId = 2 && t1.zone_approve = FALSE) THEN 1 END) AS zone_unapprove_cat2,
+                                    COUNT(CASE WHEN t1.category_questId = 3 THEN 1 END) AS c_cat3,
+                                    COUNT(CASE WHEN (t1.category_questId = 3 && t1.ssj_approve = TRUE) THEN 1 END) AS ssj_approve_cat3,
+                                    COUNT(CASE WHEN (t1.category_questId = 3 && t1.ssj_approve = FALSE) THEN 1 END) AS ssj_unapprove_cat3,
+                                    COUNT(CASE WHEN (t1.category_questId = 3 && t1.zone_approve = TRUE) THEN 1 END) AS zone_approve_cat3,
+                                    COUNT(CASE WHEN (t1.category_questId = 3 && t1.zone_approve = FALSE) THEN 1 END) AS zone_unapprove_cat3,
+                                    COUNT(CASE WHEN t1.category_questId = 4 THEN 1 END) AS c_cat4,
+                                    COUNT(CASE WHEN (t1.category_questId = 4 && t1.ssj_approve = TRUE) THEN 1 END) AS ssj_approve_cat4,
+                                    COUNT(CASE WHEN (t1.category_questId = 4 && t1.ssj_approve = FALSE) THEN 1 END) AS ssj_unapprove_cat4,
+                                    COUNT(CASE WHEN (t1.category_questId = 4 && t1.zone_approve = TRUE) THEN 1 END) AS zone_approve_cat4,
+                                    COUNT(CASE WHEN (t1.category_questId = 4 && t1.zone_approve = FALSE) THEN 1 END) AS zone_unapprove_cat4
+                                    FROM Evaluate AS t1 
+                                    INNER JOIN Hospitals AS t2
+                                    ON t1.hcode = t2.hcode COLLATE utf8mb4_unicode_ci
+                                    WHERE t2.typename IN ('โรงพยาบาลศูนย์','โรงพยาบาลทั่วไป','โรงพยาบาลชุมชน','หน่วยงานทดสอบระบบ') AND t2.zone = ${zone}
+                                    GROUP BY t2.zone,t2.provcode,t2.provname,t1.hcode,t2.hname_th
+                                    ORDER BY CAST(t2.zone AS UNSIGNED), t2.provcode ASC`
+
+        const total_result = result.map((item) => ({
+            zone: item.zone,
+            provcode: item.provcode,
+            provname: item.provname,
+            hcode: item.hcode,
+            hname_th: item.hname_th,
+            c_cat1: Number(item.c_cat1),
+            ssj_approve_cat1: Number(item.ssj_approve_cat1),
+            ssj_unapprove_cat1: Number(item.ssj_unapprove_cat1),
+            zone_approve_cat1: Number(item.zone_approve_cat1),
+            zone_unapprove_cat1: Number(item.zone_unapprove_cat1),
+            c_cat2: Number(item.c_cat2),
+            ssj_approve_cat2: Number(item.ssj_approve_cat2),
+            ssj_unapprove_cat2: Number(item.ssj_unapprove_cat2),
+            zone_approve_cat2: Number(item.zone_approve_cat2),
+            zone_unapprove_cat2: Number(item.zone_unapprove_cat2),
+            c_cat3: Number(item.c_cat3),
+            ssj_approve_cat3: Number(item.ssj_approve_cat3),
+            ssj_unapprove_cat3: Number(item.ssj_unapprove_cat3),
+            zone_approve_cat3: Number(item.zone_approve_cat3),
+            zone_unapprove_cat3: Number(item.zone_unapprove_cat3),
+            c_cat4: Number(item.c_cat4),
+            ssj_approve_cat4: Number(item.ssj_approve_cat4),
+            ssj_unapprove_cat4: Number(item.ssj_unapprove_cat4),
+            zone_approve_cat4: Number(item.zone_approve_cat4),
+            zone_unapprove_cat4: Number(item.zone_unapprove_cat4)
+        }))
+
+        res.status(200).json(total_result)
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Sever error!"
+        })
+    }
+}
+
+exports.splitCommaForCheckApproveByHosp = async (req, res) => {
+    try {
+        //Code
+
+        const {hcode} = req.query
+        const result = await prisma.$queryRaw`SELECT 
+            tb3.zone,tb3.provcode,tb3.provname,tb1.hcode,tb3.hname_th,tb1.id,tb1.category_questId,
+            tb1.questId,tb1.sub_questId,tb1.userId,tb1.c_check,tb1.ssj_approve,tb1.zone_approve,
+            tb2.sub_quest_total_point,tb2.sub_quest_require_point,tb2.necessary
+            FROM (SELECT t.id,t.category_questId,t.questId,t.sub_questId,t.hcode,t.userId,
+                         SUBSTRING_INDEX(SUBSTRING_INDEX(t.check, ',', n.n), ',', -1) AS c_check, t.ssj_approve, t.zone_approve
+                 FROM Evaluate t 
+                 CROSS JOIN (SELECT a.N + b.N * 10 + 1 n FROM (SELECT 0 AS N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4) a ,(SELECT 0 AS N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4) b ORDER BY n ) n 
+                 WHERE n.n <= 1 + (LENGTH(t.check) - LENGTH(REPLACE(t.check, ',', ''))) ORDER BY id,c_check) tb1
+            INNER JOIN Sub_quest_list AS tb2
+            ON tb1.c_check = tb2.choice AND tb1.sub_questId = tb2.sub_questId
+            INNER JOIN Hospitals AS tb3
+            ON tb1.hcode = tb3.hcode COLLATE utf8mb4_unicode_ci
+            WHERE tb3.typename IN ('โรงพยาบาลศูนย์','โรงพยาบาลทั่วไป','โรงพยาบาลชุมชน','หน่วยงานทดสอบระบบ') AND tb1.hcode = ${hcode}
+            ORDER BY CAST(tb3.zone AS UNSIGNED), tb3.provcode ASC`
+
+        res.status(200).json(result)
     } catch (err) {
         console.log(err)
         res.status(500).json({

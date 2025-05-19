@@ -5,6 +5,7 @@ const {
     getListEvaluateAll,
     getEvaluateByHosp,
     getEvaluateByHosp2,
+    getEvaluateByHosp3,
     getListEvaluateByHosp,
     getListEvaluateByHosp2,
     getListEvaluateByProv,
@@ -37,7 +38,16 @@ const {
     getSumEvaluateByProv,
     getEvaluateForBarChartStackZone,
     selectApproveEvaluate,
-    getEvaluateForChart
+    getEvaluateForChart,
+    ssjApproveById,
+    commentEvaluate,
+    getCommentEvaluate,
+    updateCommentEvaluate,
+    checkApproveAll,
+    getCommentEvaluateById,
+    checkApproveZone,
+    changeStatusZoneApprove,
+    splitCommaForCheckApproveByHosp
 } = require('../Controllers/Evaluate')
 const { authCheck } = require('../Middleware/Auth')
 const { uploadFile } = require('../Middleware/UploadFile')
@@ -81,6 +91,8 @@ router.get('/getEvaluateByHosp', authCheck, getEvaluateByHosp)
 
 router.get('/getEvaluateByHosp2', authCheck, getEvaluateByHosp2)
 
+router.get('/getEvaluateByHosp3', authCheck, getEvaluateByHosp3)
+
 router.get('/getEvaluateById/:id', authCheck, getEvaluateById)
 
 router.put('/updateChoiceEvaluate', authCheck, updateChoiceEvaluate)
@@ -94,6 +106,8 @@ router.put('/uploadFileById/:id', authCheck, uploadAllTypeFile, uploadFileById)
 router.get('/removeFileById/:id', authCheck, removeFileById)
 
 router.put('/ssjChangeStatusApprove', authCheck, ssjChangeStatusApprove)
+
+router.put('/ssjApproveById', authCheck, ssjApproveById)
 
 router.put('/zoneChangeStatusApprove', authCheck, zoneChangeStatusApprove)
 
@@ -118,6 +132,22 @@ router.delete('/truncateTable', authCheck, truncateTable)
 router.get('/checkSsjNotApprove',authCheck, checkSsjNotApprove)
 
 router.get('/checkZoneNotApprove', authCheck, checkZoneNotApprove)
+
+router.post('/commentEvaluate', authCheck, commentEvaluate)
+
+router.get('/getCommentEvaluate', authCheck, getCommentEvaluate)
+
+router.put('/updateCommentEvaluate', authCheck, updateCommentEvaluate)
+
+router.get('/checkApproveAll', checkApproveAll)
+
+router.get('/checkApproveZone', checkApproveZone)
+
+router.get('/splitCommaForCheckApproveByHosp', splitCommaForCheckApproveByHosp)
+
+router.get('/getCommentEvaluateById/:id', authCheck, getCommentEvaluateById)
+
+router.put('/changeStatusZoneApprove', authCheck, changeStatusZoneApprove)
 
 
 
