@@ -152,7 +152,8 @@ exports.getListEvaluateByHosp2 = async (req, res) => {
                 sub_quests: {
                     select: {
                         id: true,
-                        sub_quest_name: true
+                        sub_quest_name: true,
+                        necessary: true
                     }
                 },
                 check: true,
@@ -231,7 +232,7 @@ exports.getEvaluateByHosp3 = async (req, res) => {
     try {
         //Code
         const { category_questId, hcode } = req.query
-        const listType = ['โรงพยาบาลศูนย์', 'โรงพยาบาลทั่วไป', 'โรงพยาบาลชุมชน', 'หน่วยงานทดสอบระบบ'];
+        const listType = ['โรงพยาบาลศูนย์', 'โรงพยาบาลทั่วไป', 'โรงพยาบาลชุมชน'];
         const result = await prisma.evaluate.findMany({
             select: {
                 id: true,
@@ -436,7 +437,7 @@ exports.getListEvaluateByProv = async (req, res) => {
     try {
         //Code
         const { province } = req.params
-        const listType = ['โรงพยาบาลศูนย์', 'โรงพยาบาลทั่วไป', 'โรงพยาบาลชุมชน', 'หน่วยงานทดสอบระบบ'];
+        const listType = ['โรงพยาบาลศูนย์', 'โรงพยาบาลทั่วไป', 'โรงพยาบาลชุมชน'];
         const result = await prisma.evaluate.findMany({
             select: {
                 id: true,
@@ -463,6 +464,7 @@ exports.getListEvaluateByProv = async (req, res) => {
                     select: {
                         id: true,
                         sub_quest_name: true,
+                        necessary: true,
                         sub_quest_lists: true
                     }
                 },
@@ -514,7 +516,7 @@ exports.getListEvaluateByZone = async (req, res) => {
     try {
         //Code
         const { zone } = req.params
-        const listType = ['โรงพยาบาลศูนย์', 'โรงพยาบาลทั่วไป', 'โรงพยาบาลชุมชน', 'หน่วยงานทดสอบระบบ'];
+        const listType = ['โรงพยาบาลศูนย์', 'โรงพยาบาลทั่วไป', 'โรงพยาบาลชุมชน'];
         const result = await prisma.evaluate.findMany({
             select: {
                 id: true,
@@ -541,6 +543,7 @@ exports.getListEvaluateByZone = async (req, res) => {
                     select: {
                         id: true,
                         sub_quest_name: true,
+                        necessary: true,
                         sub_quest_lists: true
                     }
                 },
@@ -1614,7 +1617,7 @@ exports.checkApproveZone = async (req, res) => {
                                     FROM Evaluate AS t1 
                                     INNER JOIN Hospitals AS t2
                                     ON t1.hcode = t2.hcode COLLATE utf8mb4_unicode_ci
-                                    WHERE t2.typename IN ('โรงพยาบาลศูนย์','โรงพยาบาลทั่วไป','โรงพยาบาลชุมชน','หน่วยงานทดสอบระบบ') AND t2.zone = ${zone}
+                                    WHERE t2.typename IN ('โรงพยาบาลศูนย์','โรงพยาบาลทั่วไป','โรงพยาบาลชุมชน') AND t2.zone = ${zone}
                                     GROUP BY t2.zone,t2.provcode,t2.provname,t1.hcode,t2.hname_th
                                     ORDER BY CAST(t2.zone AS UNSIGNED), t2.provcode ASC`
 
@@ -1673,7 +1676,7 @@ exports.splitCommaForCheckApproveByHosp = async (req, res) => {
             ON tb1.c_check = tb2.choice AND tb1.sub_questId = tb2.sub_questId
             INNER JOIN Hospitals AS tb3
             ON tb1.hcode = tb3.hcode COLLATE utf8mb4_unicode_ci
-            WHERE tb3.typename IN ('โรงพยาบาลศูนย์','โรงพยาบาลทั่วไป','โรงพยาบาลชุมชน','หน่วยงานทดสอบระบบ') AND tb1.hcode = ${hcode}
+            WHERE tb3.typename IN ('โรงพยาบาลศูนย์','โรงพยาบาลทั่วไป','โรงพยาบาลชุมชน') AND tb1.hcode = ${hcode}
             ORDER BY CAST(tb3.zone AS UNSIGNED), tb3.provcode ASC`
 
         res.status(200).json(result)
