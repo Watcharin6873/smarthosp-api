@@ -437,7 +437,7 @@ exports.getListEvaluateByProv = async (req, res) => {
     try {
         //Code
         const { province } = req.params
-        const listType = ['โรงพยาบาลศูนย์', 'โรงพยาบาลทั่วไป', 'โรงพยาบาลชุมชน'];
+        const listType = ['โรงพยาบาลศูนย์', 'โรงพยาบาลทั่วไป', 'โรงพยาบาลชุมชน'];  //,'หน่วยงานทดสอบระบบ'
         const result = await prisma.evaluate.findMany({
             select: {
                 id: true,
@@ -1149,10 +1149,10 @@ exports.splitComma = async (req, res) => {
                 LEFT JOIN (SELECT su.hcode, su.category_questId, SUM(su.sub_quest_total_point) sub_quest_total_point, SUM(su.sub_quest_require_point) sub_quest_require_point
                 FROM (SELECT tb1.id AS evaluateId, tb1.category_questId, tb1.questId, tb1.sub_questId, tb1.hcode, tb1.userId, tb1.c_check, tb2.sub_quest_listname,tb2.sub_quest_total_point,
                     tb2.sub_quest_require_point, tb2.description, tb2.necessary
-                FROM (SELECT id,category_questId,questId,sub_questId,hcode,userId,SUBSTRING_INDEX(SUBSTRING_INDEX(t.check, ',', n.n), ',', -1) AS c_check
+                FROM (SELECT t.id,t.category_questId,t.questId,t.sub_questId,t.hcode,t.userId,t.ssj_approve,SUBSTRING_INDEX(SUBSTRING_INDEX(t.check, ',', n.n), ',', -1) AS c_check
                 FROM Evaluate t 
                 CROSS JOIN (SELECT a.N + b.N * 10 + 1 n FROM (SELECT 0 AS N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4) a ,(SELECT 0 AS N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4) b ORDER BY n ) n 
-                WHERE n.n <= 1 + (LENGTH(t.check) - LENGTH(REPLACE(t.check, ',', ''))) ORDER BY id,c_check) tb1
+                WHERE n.n <= 1 + (LENGTH(t.check) - LENGTH(REPLACE(t.check, ',', ''))) AND t.ssj_approve = TRUE ORDER BY id,c_check) tb1
                 LEFT JOIN Sub_quest_list tb2 ON tb1.sub_questId = tb2.sub_questId AND tb1.c_check = tb2.choice WHERE tb1.hcode=${hcode}) su 
                 GROUP BY su.hcode, su.category_questId ORDER BY su.hcode, su.category_questId ASC) res
                 ON ca.id = res.category_questId ORDER BY category_questId ASC`
@@ -1617,7 +1617,7 @@ exports.checkApproveZone = async (req, res) => {
                                     FROM Evaluate AS t1 
                                     INNER JOIN Hospitals AS t2
                                     ON t1.hcode = t2.hcode COLLATE utf8mb4_unicode_ci
-                                    WHERE t2.typename IN ('โรงพยาบาลศูนย์','โรงพยาบาลทั่วไป','โรงพยาบาลชุมชน') AND t2.zone = ${zone}
+                                    WHERE t2.typename IN ('โรงพยาบาลศูนย์','โรงพยาบาลทั่วไป','โรงพยาบาลชุมชน') AND t2.zone = ${zone} -- ,'หน่วยงานทดสอบระบบ'
                                     GROUP BY t2.zone,t2.provcode,t2.provname,t1.hcode,t2.hname_th
                                     ORDER BY CAST(t2.zone AS UNSIGNED), t2.provcode ASC`
 
@@ -1676,7 +1676,7 @@ exports.splitCommaForCheckApproveByHosp = async (req, res) => {
             ON tb1.c_check = tb2.choice AND tb1.sub_questId = tb2.sub_questId
             INNER JOIN Hospitals AS tb3
             ON tb1.hcode = tb3.hcode COLLATE utf8mb4_unicode_ci
-            WHERE tb3.typename IN ('โรงพยาบาลศูนย์','โรงพยาบาลทั่วไป','โรงพยาบาลชุมชน') AND tb1.hcode = ${hcode}
+            WHERE tb3.typename IN ('โรงพยาบาลศูนย์','โรงพยาบาลทั่วไป','โรงพยาบาลชุมชน') AND tb1.hcode = ${hcode} -- ,'หน่วยงานทดสอบระบบ'
             ORDER BY CAST(tb3.zone AS UNSIGNED), tb3.provcode ASC`
 
         res.status(200).json(result)
