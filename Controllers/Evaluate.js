@@ -1510,7 +1510,11 @@ exports.commentEvaluate = async (req, res) => {
         const { evaluateId, comment_text, userId } = req.body
         console.log(req.body)
 
-        const check = await prisma.comment.findFirst()
+        const check = await prisma.comment.findFirst({
+            where:{
+                evaluateId: Number(evaluateId)
+            }
+        })
 
         if (check) {
             return res.json({message: 'มีความคิดเห็นในข้อนี้แล้ว'})
