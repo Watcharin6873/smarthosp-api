@@ -47,7 +47,9 @@ const {
     getCommentEvaluateById,
     checkApproveZone,
     changeStatusZoneApprove,
-    splitCommaForCheckApproveByHosp
+    splitCommaForCheckApproveByHosp,
+    getSumEvaluateForAll2,
+    removeComment
 } = require('../Controllers/Evaluate')
 const { authCheck } = require('../Middleware/Auth')
 const { uploadFile } = require('../Middleware/UploadFile')
@@ -62,6 +64,8 @@ router.get('/getListEvaluateAll', getListEvaluateAll)
 router.get('/getHospitalInListEvaluate', getHospitalInListEvaluate)
 
 router.get('/getSumEvaluateForAll', getSumEvaluateForAll)
+
+router.get('/getSumEvaluateForAll2', getSumEvaluateForAll2)
 
 router.get('/sumEvaluateAll', sumEvaluateAll)
 
@@ -146,6 +150,8 @@ router.get('/checkApproveZone', checkApproveZone)
 router.get('/splitCommaForCheckApproveByHosp', splitCommaForCheckApproveByHosp)
 
 router.get('/getCommentEvaluateById/:id', authCheck, getCommentEvaluateById)
+
+router.get('/removeComment/:id', authCheck, removeComment)
 
 router.put('/changeStatusZoneApprove', authCheck, changeStatusZoneApprove)
 

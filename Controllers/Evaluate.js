@@ -437,7 +437,7 @@ exports.getListEvaluateByProv = async (req, res) => {
     try {
         //Code
         const { province } = req.params
-        const listType = ['โรงพยาบาลศูนย์', 'โรงพยาบาลทั่วไป', 'โรงพยาบาลชุมชน'];  //,'หน่วยงานทดสอบระบบ'
+        const listType = ['โรงพยาบาลศูนย์', 'โรงพยาบาลทั่วไป', 'โรงพยาบาลชุมชน','หน่วยงานทดสอบระบบ'];  //,'หน่วยงานทดสอบระบบ'
         const result = await prisma.evaluate.findMany({
             select: {
                 id: true,
@@ -1294,6 +1294,40 @@ exports.getSumEvaluateForAll = async (req, res) => {
     }
 }
 
+exports.getSumEvaluateForAll2 = async (req, res) => {
+    try {
+        //Code
+        const result = await prisma.$queryRaw`SELECT a.zone,a.provcode,a.provname,a.hcode,a.hname_th,a.typename,
+            b.point_total_cat1,b.point_require_cat1,b.point_total_cat2,b.point_require_cat2,
+            b.point_total_cat3,b.point_require_cat3,b.point_total_cat4, cyber_level,cyber_levelname
+        FROM Hospitals AS a 
+        LEFT JOIN (SELECT 
+                    hcode,
+                    SUM(CASE WHEN category_questId = 1 THEN sub_quest_total_point ELSE 0 END) AS point_total_cat1,
+                    SUM(CASE WHEN category_questId = 1 THEN sub_quest_require_point ELSE 0 END) AS point_require_cat1,
+                    SUM(CASE WHEN category_questId = 2 THEN sub_quest_total_point ELSE 0 END) AS point_total_cat2,
+                    SUM(CASE WHEN category_questId = 2 THEN sub_quest_require_point ELSE 0 END) AS point_require_cat2,
+                    SUM(CASE WHEN category_questId = 3 THEN sub_quest_total_point ELSE 0 END) AS point_total_cat3,
+                    SUM(CASE WHEN category_questId = 3 THEN sub_quest_require_point ELSE 0 END) AS point_require_cat3,
+                    SUM(CASE WHEN category_questId = 4 THEN sub_quest_total_point ELSE 0 END) AS point_total_cat4
+                FROM Sum_approve_evaluate
+                GROUP BY hcode) AS b
+        ON a.hcode = b.hcode COLLATE utf8mb4_unicode_ci
+        LEFT JOIN Cyber_risk_level AS c 
+        ON a.hcode = c.hcode COLLATE utf8mb4_unicode_ci
+        WHERE a.typename IN ('โรงพยาบาลศูนย์', 'โรงพยาบาลทั่วไป', 'โรงพยาบาลชุมชน')
+        ORDER BY CAST(a.zone AS UNSIGNED), a.provcode ASC`
+
+        res.json(result)
+
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Sever error!"
+        })
+    }
+}
+
 exports.checkSsjNotApprove = async (req, res) => {
     try {
         const { hospcode, category_questId } = req.query
@@ -1476,6 +1510,12 @@ exports.commentEvaluate = async (req, res) => {
         const { evaluateId, comment_text, userId } = req.body
         console.log(req.body)
 
+        const check = await prisma.comment.findFirst()
+
+        if (check) {
+            return res.json({message: 'มีความคิดเห็นในข้อนี้แล้ว'})
+        }
+
         await prisma.comment.create({
             data: {
                 evaluateId: Number(evaluateId),
@@ -1513,6 +1553,26 @@ exports.updateCommentEvaluate = async (req, res) => {
         })
 
         res.status(200).json({ message: 'แก้ไขความเห็นเรียบร้อย!!' })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            message: "Sever error!"
+        })
+    }
+}
+
+exports.removeComment = async (req, res) =>{
+    try {
+        //Code
+        const {id} = req.params
+
+        const result = await prisma.comment.delete({
+            where:{
+                id: Number(id)
+            }
+        })
+
+        res.status(200).json({ message: 'ลบความเห็นเรียบร้อย!!' })
     } catch (err) {
         console.log(err)
         res.status(500).json({
