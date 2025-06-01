@@ -437,7 +437,7 @@ exports.getListEvaluateByProv = async (req, res) => {
     try {
         //Code
         const { province } = req.params
-        const listType = ['โรงพยาบาลศูนย์', 'โรงพยาบาลทั่วไป', 'โรงพยาบาลชุมชน','หน่วยงานทดสอบระบบ'];  //,'หน่วยงานทดสอบระบบ'
+        const listType = ['โรงพยาบาลศูนย์', 'โรงพยาบาลทั่วไป', 'โรงพยาบาลชุมชน'];  //,'หน่วยงานทดสอบระบบ'
         const result = await prisma.evaluate.findMany({
             select: {
                 id: true,
